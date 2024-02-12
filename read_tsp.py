@@ -39,11 +39,10 @@ def create_blocks(nodes, population_size, selected_population, individual_size):
 def best_solutions_matrix(individuals, indexes_best_individuals, n):
     best_individuals = [(individuals[index], distance) for index, distance in indexes_best_individuals]
     solutions_matrix = []
-
-    # Access the NumPy arrays within each 'nodes' object and stack them horizontally
+    # falta obtener el nombre del nodo
     for i in range(n):
-        nodes = best_individuals[i][0]
-        solutions_matrix.append(np.hstack([node[:, 0] for node in nodes]))
+        nodes = best_individuals[i][:]  # Access the entire first element
+        solutions_matrix.append(nodes[0][:, 0])
 
     return np.array(solutions_matrix)
 
