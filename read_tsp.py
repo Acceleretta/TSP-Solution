@@ -25,18 +25,37 @@ def read_tsp(archive):
 
 
 def create_blocks(nodes, population_size, selected_population, individual_size):
-    distances = []
-    indivuals = []
-    for _ in range(population_size):
-        individual = choose_random_nodes(nodes, individual_size)
-        indivuals.append(individual)
-        distances.append(fitness(individual))
-
+    individuals, distances = create_individual(population_size, nodes, individual_size)
     n = int(len(distances) * selected_population)
-    indexs_best_individuals = sorted(enumerate(distances), key=lambda x: x[1])[:n]
+    indexes_best_individuals = sorted(enumerate(distances), key=lambda x: x[1])[:n]
+    solutions_matrix = best_solutions_matrix(individuals, indexes_best_individuals, n)
 
-    for indice, valor in indexs_best_individuals:
-        print("Índice:", indice, "Valor:", valor)
+    find_order_patterns(solutions_matrix, n)
+
+    return repeated_orders
+
+
+
+def best_solutions_matrix(individuals, indexes_best_individuals, n):
+    best_individuals = [(individuals[index], distance) for index, distance in indexes_best_individuals]
+    solutions_matrix = []
+
+    # Access the NumPy arrays within each 'nodes' object and stack them horizontally
+    for i in range(n):
+        nodes = best_individuals[i][0]
+        solutions_matrix.append(np.hstack([node[:, 0] for node in nodes]))
+
+    return np.array(solutions_matrix)
+
+
+def find_order_patterns(solutions_matrix, n):
+    for i in range(n):
+        valores, frecuencia = np.unique(solutions_matrix[:, i], return_counts=True)
+        print(f"Posición {i}: {valores} - {frecuencia}")
+
+    for i in range(len(solutions_matrix[0])):
+        if solutions_matrix[0][i] == solutions_matrix[1][i] and solutions_matrix[1][i] == solutions_matrix[2][i]:
+            print(f"Patrón encontrado en la posición {i}: {solutions_matrix[0][i]}")
 
 
 def choose_random_nodes(nodos_array, n):
@@ -52,3 +71,14 @@ def fitness(nodes):
         distances.append(distance)
         sum_distances = sum(distances)
     return sum_distances
+
+
+def create_individual(population_size, nodes, individual_size):
+    distances = []
+    indivuals = []
+    for _ in range(population_size):
+        individual = choose_random_nodes(nodes, individual_size)
+        indivuals.append(individual)
+        distances.append(fitness(individual))
+
+    return indivuals, distances
